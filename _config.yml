@@ -1,6 +1,6 @@
-title: Minimal theme
-logo: /assets/img/logo.png
-description: Minimal is a theme for GitHub Pages.
+title: Ryan Morrison - Data Science and ML
+logo: /assets/img/Logo.png
+description:  This is a blog dedicated to interesting data science and machine learning problems.
 show_downloads: true
 google_analytics:
 theme: jekyll-theme-minimal
