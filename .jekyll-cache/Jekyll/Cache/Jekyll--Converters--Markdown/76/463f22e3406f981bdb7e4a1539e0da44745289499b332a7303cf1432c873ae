@@ -1,0 +1,224 @@
+I"ҝ<h1 id="classifier">Classifier</h1>
+
+<p>To begin classification, a dataset in a suitable format is needed. Firstly, a CSV file is created with a header as per the features outlined in Part 1. A loop is setup that iterates through each sound file of the original mp3 sound files of the Gtzan dataset and each feature is calculated and then appended to the CSV.</p>
+
+<p>To calculate these features, the librosa package is used. Librosa is a python package for music and audio analysis.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">header</span> <span class="o">=</span> <span class="s">'filename chroma_stft rmse spectral_centroid spectral_bandwidth rolloff zero_crossing_rate'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">):</span>
+    <span class="n">header</span> <span class="o">+=</span> <span class="sa">f</span><span class="s">' mfcc</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">'</span>
+<span class="n">header</span> <span class="o">+=</span> <span class="s">' label'</span>
+<span class="n">header</span> <span class="o">=</span> <span class="n">header</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'data.csv'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">file</span><span class="p">:</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="p">.</span><span class="n">writer</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+    <span class="n">writer</span><span class="p">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+<span class="n">genres</span> <span class="o">=</span> <span class="s">'blues classical country disco hiphop jazz metal pop reggae rock'</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genres</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s">'./genre_data/</span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s">'</span><span class="p">):</span>
+            <span class="n">songname</span> <span class="o">=</span> <span class="sa">f</span><span class="s">'./genre_data/</span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s">'</span>
+            <span class="n">y</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">songname</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+            <span class="n">chroma_stft</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">chroma_stft</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+            <span class="n">rms</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">rms</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">spec_cent</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">spectral_centroid</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+            <span class="n">spec_bw</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">spectral_bandwidth</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+            <span class="n">rolloff</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">spectral_rolloff</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+            <span class="n">zcr</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">zero_crossing_rate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">mfcc</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">mfcc</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+            <span class="n">to_append</span> <span class="o">=</span> <span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">chroma_stft</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rms</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">spec_cent</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">spec_bw</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rolloff</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">zcr</span><span class="p">)</span><span class="si">}</span><span class="s">'</span>    
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">mfcc</span><span class="p">:</span>
+                <span class="n">to_append</span> <span class="o">+=</span> <span class="sa">f</span><span class="s">' </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s">'</span>
+            <span class="n">to_append</span> <span class="o">+=</span> <span class="sa">f</span><span class="s">' </span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s">'</span>
+            <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'data.csv'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">file</span><span class="p">:</span>
+                <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="p">.</span><span class="n">writer</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+                <span class="n">writer</span><span class="p">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">to_append</span><span class="p">.</span><span class="n">split</span><span class="p">())</span>
+</code></pre></div></div>
+
+<h2 id="preprocessing-the-data">Preprocessing the data</h2>
+<p>The above function must be called. Then the CSV file is read as a pandas data frame.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">func</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'data.csv'</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Now the data needs to be set up so that the classifier can learn on it. This means creating a set of predictor variables called <code class="language-plaintext highlighter-rouge">X</code> and a target variable <code class="language-plaintext highlighter-rouge">Y</code>. In this case the target variable is genres and the predictor variables are the features that have been extracted earlier.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Dropping unneccesary columns
+</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'filename'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">genre_list</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">genre_list</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>In most cases, it is advised to stanardise the data before initiating training because a lot of machine learning algorithms are sensitive to relative scales of features. One method of stanardising is scaling. <code class="language-plaintext highlighter-rouge">The StandardScaler()</code> function in python scales the features such that the distribtution is centred around 0 with a standard deviation of 1. The formula for this operations is:</p>
+
+<p><code class="language-plaintext highlighter-rouge">X = (x - μ)/σ</code></p>
+
+<p>Another step in the preprocessing stage is the train/test split. Some data must be kept of of the model training so that it is ‘reserved’ for testing. This ensures the model can perform on unsseen data. For this project a 80/20 train/test split was used.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">))</span>
+
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="creating-the-model">Creating the Model</h2>
+
+<p>After experimenting with several machine learning alogrithms, the one that perfomed the best was a sequential neural network.</p>
+
+<p>The chosen topoligy for the neural network is as follows: THe amount of neurons in the input layer should match the amount of features in the dataset. There are two hidden layers in the neural network, using the activation function Relu to account for the vanishing gradient problem. Then, the output layer has 10 nodes, since there are 10 genres in the dataset.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Creating Sequential Model
+</span><span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="n">Sequential</span><span class="p">()</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">X_train</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],)))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'softmax'</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>The loss function chosen is sparse catergorical crossentropy because the problem is a classification problem of more than two labels.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s">'adam'</span><span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="s">'sparse_categorical_crossentropy'</span><span class="p">,</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s">'accuracy'</span><span class="p">])</span>
+
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span>
+                    <span class="n">y_train</span><span class="p">,</span>
+                    <span class="n">epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                    <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The model is then tested on the test set, performing with a decent accuracy. However, the model clearly needs further tuning.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">test_loss</span><span class="p">,</span> <span class="n">test_acc</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="n">y_test</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'This classifier is currently running with an accuracy of: '</span><span class="p">,</span><span class="n">test_acc</span><span class="p">)</span>
+
+<span class="n">model</span><span class="p">.</span><span class="n">save</span><span class="p">(</span><span class="s">'my_model.h5'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>This classifier is currently running with an accuracy of:  0.6449999809265137
+</code></pre></div></div>
+
+<h1 id="test-on-user-data">Test on User Data</h1>
+
+<p>The final part of this project was to get the model to perform on a real world use case. To achieve this, a seprate script was written that reads in the data from the CSV as before, and then imports the model created in the script from Section (1).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#importing model and reading data used for model
+</span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'data.csv'</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'filename'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s">'my_model.h5'</span><span class="p">)</span>
+
+<span class="c1">#copy of original dataset
+</span><span class="n">X_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The data had to be scaled differently for this script because it is only dealing with one observation, whereas the <code class="language-plaintext highlighter-rouge">Stanardscaler()</code> fucntion in Python assumes that the data has several rows in the dataset. Thus, the data is scaled manually using the following code.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">##Writing fuctions to standardise the dataset. 'means' and 'stdevs' will be used to standardise user data.
+</span>
+<span class="c1"># calculate column means
+</span><span class="k">def</span> <span class="nf">column_means</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="n">means</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">col_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">]</span>
+        <span class="n">means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">col_values</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span>
+        <span class="n">means</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">means</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">means</span>
+
+<span class="n">means</span> <span class="o">=</span> <span class="n">column_means</span><span class="p">(</span><span class="n">X_new</span><span class="p">)</span>
+
+<span class="c1"># calculate column standard deviations
+</span><span class="k">def</span> <span class="nf">column_stdevs</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">means</span><span class="p">):</span>
+    <span class="n">stdevs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">variance</span> <span class="o">=</span> <span class="p">[</span><span class="nb">pow</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">means</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">]</span>
+        <span class="n">stdevs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span>
+    <span class="n">stdevs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">stdevs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">stdevs</span>
+
+<span class="n">stdevs</span> <span class="o">=</span> <span class="n">column_stdevs</span><span class="p">(</span><span class="n">X_new</span><span class="p">,</span> <span class="n">means</span><span class="p">)</span>
+</code></pre></div></div>
+<p>The program will ask the user for an input in the form of a URL from websites that host video such as Youtube, Soundcloud, etc. For demonstration purposes, the hip-hop song Halftime from Nas’ 1994 album Illmatic is chosen.</p>
+
+<p>The program accepts a URL and then then utilises the ‘youtube_dl’ command line script</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">##accepting a URL as input, downloading the video to a desired directory and converting to a WAV file
+</span><span class="n">user_url</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">"Please enter a URL for the song of your choice: "</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">MyLogger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">my_hook</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s">'status'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'finished'</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Done downloading'</span><span class="p">)</span>
+
+<span class="n">ydl_opts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'format'</span><span class="p">:</span> <span class="s">'bestaudio/best'</span><span class="p">,</span>
+    <span class="s">'outtmpl'</span><span class="p">:</span> <span class="s">'/home/ryan/genres/genre_classifier/test_data/%(title)s.%(ext)s'</span><span class="p">,</span>
+    <span class="s">'postprocessors'</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s">'key'</span><span class="p">:</span> <span class="s">'FFmpegExtractAudio'</span><span class="p">,</span>
+        <span class="s">'preferredcodec'</span><span class="p">:</span> <span class="s">'wav'</span><span class="p">,</span>
+        <span class="s">'preferredquality'</span><span class="p">:</span> <span class="s">'192'</span><span class="p">,</span>
+    <span class="p">}],</span>
+    <span class="s">'logger'</span><span class="p">:</span> <span class="n">MyLogger</span><span class="p">(),</span>
+    <span class="s">'progress_hooks'</span><span class="p">:</span> <span class="p">[</span><span class="n">my_hook</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="k">with</span> <span class="n">youtube_dl</span><span class="p">.</span><span class="n">YoutubeDL</span><span class="p">(</span><span class="n">ydl_opts</span><span class="p">)</span> <span class="k">as</span> <span class="n">ydl</span><span class="p">:</span>
+    <span class="n">ydl</span><span class="p">.</span><span class="n">download</span><span class="p">([</span><span class="n">user_url</span><span class="p">])</span>
+    
+<span class="c1">#removing spaces in the file 
+</span><span class="n">directory</span> <span class="o">=</span> <span class="s">'/home/ryan/genres/genre_classifier/test_data'</span>
+<span class="p">[</span><span class="n">os</span><span class="p">.</span><span class="n">rename</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">f</span><span class="p">).</span><span class="n">replace</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="s">'_'</span><span class="p">).</span><span class="n">lower</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Please enter a URL for the song of your choice: https://soundcloud.com/nasirjones/halftime
+Done downloading
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#writing a header for the user data
+</span><span class="n">header</span> <span class="o">=</span> <span class="s">'filename chroma_stft rmse spectral_centroid spectral_bandwidth rolloff zero_crossing_rate'</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">):</span>
+    <span class="n">header</span> <span class="o">+=</span> <span class="sa">f</span><span class="s">' mfcc</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">'</span>
+<span class="n">header</span> <span class="o">+=</span> <span class="s">' label'</span>
+<span class="n">header</span> <span class="o">=</span> <span class="n">header</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="c1">#creating the features of the user file in the same way as for the original dataset
+</span><span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'user_data.csv'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">file</span><span class="p">:</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="p">.</span><span class="n">writer</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+    <span class="n">writer</span><span class="p">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">listdir</span><span class="p">(</span><span class="s">'test_data'</span><span class="p">):</span>
+    <span class="n">songname</span> <span class="o">=</span> <span class="sa">f</span><span class="s">'./test_data/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s">'</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">songname</span><span class="p">)</span>
+    <span class="n">y</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">songname</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">chroma_stft</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">chroma_stft</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">rms</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">spec_cent</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">spectral_centroid</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+    <span class="n">spec_bw</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">spectral_bandwidth</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+    <span class="n">rolloff</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">spectral_rolloff</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+    <span class="n">zcr</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">zero_crossing_rate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">mfcc</span> <span class="o">=</span> <span class="n">librosa</span><span class="p">.</span><span class="n">feature</span><span class="p">.</span><span class="n">mfcc</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+    <span class="n">to_append</span> <span class="o">=</span> <span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">chroma_stft</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rms</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">spec_cent</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">spec_bw</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rolloff</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">zcr</span><span class="p">)</span><span class="si">}</span><span class="s">'</span>    
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">mfcc</span><span class="p">:</span>
+        <span class="n">to_append</span> <span class="o">+=</span> <span class="sa">f</span><span class="s">' </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s">'</span>
+    <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'user_data.csv'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">file</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="p">.</span><span class="n">writer</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+        <span class="n">writer</span><span class="p">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">to_append</span><span class="p">.</span><span class="n">split</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./test_data/halftime.wav
+</code></pre></div></div>
+
+:ET
